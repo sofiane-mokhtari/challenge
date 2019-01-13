@@ -1,6 +1,7 @@
 import requests
 import re, sys, json
 from requests_oauthlib import OAuth1
+from variable import *
 
 class Tlist():
 
@@ -16,23 +17,24 @@ class Tlist():
 		self.next = None
 
 	def get_json(self):
-		ret = [{}]
+		ret = []
 		i = 0
 		tmp = self
 		while (tmp):
-			ret[i]["name"] = tmp.name
-			ret[i]["type"] = tmp.type
-			ret[i]["list_user"] = tmp.ret
-			ret[i]["nombre_user"] = tmp.len_ret
+			tmp2 = {}
+			tmp2["name"] = tmp.name
+			tmp2["type"] = tmp.type
+			tmp2["list_return"] = tmp.ret
+			tmp2["nombre_user"] = tmp.len_ret
 			if (tmp.node_user_user != None):
-				ret[i]["node_user_user"] = tmp.node_user_user.get_json()
-			if (tmp.node_user_user != None):
-				ret[i]["node_user_hast"] = tmp.node_user_hast.get_json()
-			if (tmp.node_user_user != None):
-				ret[i]["node_hast_user"] = tmp.node_hast_user.get_json()
-			if (tmp.node_user_user != None):
-				ret[i]["node_hast_hast"] = tmp.node_hast_hast.get_json()
-			i += 1
+				tmp2["node_user_user"] = tmp.node_user_user.get_json()
+			if (tmp.node_user_hast != None):
+				tmp2["node_user_hast"] = tmp.node_user_hast.get_json()
+			if (tmp.node_hast_user != None):
+				tmp2["node_hast_user"] = tmp.node_hast_user.get_json()
+			if (tmp.node_hast_hast != None):
+				tmp2["node_hast_hast"] = tmp.node_hast_hast.get_json()
+			ret.append(tmp2)
 			tmp = tmp.next
 		return ret
 
@@ -92,7 +94,7 @@ class Tlist():
 			self.node_hast_user.add_next(Tlist(value, lst, 1))
 
 	def do_node_hast_hast(self, value, lst):
-		if (self.node_hast_hats == None):
+		if (self.node_hast_hast == None):
 			self.node_hast_hast = Tlist(value, lst, 2)
 		else:
 			self.node_hast_hast.add_next(Tlist(value, lst, 2))
@@ -156,9 +158,9 @@ def get_tweets_by_hastag(hastag):
 def get_tweets_by_hastag_if_count(hastag):
 	try:
 		url = "https://api.twitter.com/1.1/search/tweets.json?q="
-		requette = rqtt(url, "%23" + hastag  + "&tweet_mode=extended")
-		json_ret = requette.json()
-		return (json_ret)
+		requette = rqtt(url, "%23" + hastag)
+		json_ret = requette.json().get("search_metadata")
+		return (json_ret.get("count"))
 	except Exception as e:
 		print (e)
 
@@ -240,8 +242,17 @@ def put_without_double(lst_dst, lst_src):
 	return (lst_double)
 
 def filtre_hastag(lst_hastag):
-	return True
+	tmp = []
+	for value in lst_hastag:
+		if get_tweets_by_hastag_if_count(value) < global_variable.nb_max_hastag:
+			tmp.append(value)
+	return tmp
 
 
 def filtre_user(lst_user):
-	return True
+	tmp = []
+	for value in lst_user:
+		if not check_usr_cerf(value):
+			tmp.append(value)
+	return tmp
+

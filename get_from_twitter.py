@@ -28,7 +28,7 @@ def find_by_hast(hastag):
 				lst_usr = find_usr(row.get("full_text"))
 				if lst_hastag != None:
 					for value in lst_hastag:
-						ret['hastag'].append(hastag)
+						ret['hastag'].append(value)
 				if lst_usr != None:
 					lst_usr.append(row.get("user").get("screen_name"))
 					for value in lst_usr:
@@ -45,12 +45,14 @@ def module_de_recherche_by_user(start):
 	#tmp = filtre_lst(tmp)
 	start.do_node_user_user(start.name, tmp.get("user"))
 	start.do_node_user_hast(start.name, tmp.get("hastag"))
+	print ("first step")
 	for value in start.node_user_user.ret:
 		tmp = find_by_usr(value)
 		if (tmp != None):
 			#tmp = filtre_user(tmp)
 			start.do_node_user_user(value, tmp.get("user"))
 			start.do_node_user_hast(value, tmp.get("hastag"))
+	print ("second step")
 	for value in start.node_user_hast.ret:
 		tmp = find_by_hast(value)
 		if (tmp != None):

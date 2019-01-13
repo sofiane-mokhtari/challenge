@@ -6,3 +6,6 @@ def get_txt_from_site():
 	for txt in re.findall("(<p>)(.+)(<\/p>)", response.text):
 		tout.append(txt[1])
 	return (tout)
+
+r = requests.get("https://restcountries.eu/rest/v2/all")
+print(r.json())
