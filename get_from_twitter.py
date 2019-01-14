@@ -1,71 +1,140 @@
 from definition import *
+from variable import *
+
+global_variable = Variable()
 
 def find_by_usr(usr):
 	ret = {"user" : [], "hastag" : []}
 	json_ret = get_tweets_by_usr(usr)
+	print (json_ret)
 	if json_ret != None:
+		json_ret = json_ret
 		for row in json_ret:
 			if (type(row) == dict):
 				lst_hastag = find_hast(row.get("full_text"))
 				lst_usr = find_usr(row.get("full_text"))
 				if lst_hastag != None:
 					for value in lst_hastag:
+						print ("		hastag = " + value)
 						ret['hastag'].append(value)
 				if lst_usr != None:
 					for value in lst_usr:
-						ret['user'].append(value)
+							if not check_usr_cerf(value):
+								print ("		user = " + value)
+								ret['user'].append(value)
 		return ret
-	else:
-		print ("find_user_error")
 
 def find_by_hast(hastag):
 	ret = {"user" : [], "hastag" : []}
-	json_ret = get_tweets_by_hastag(hastag)
+	json_ret = get_tweets_by_hastag_if_count(hastag)
 	if json_ret != None:
 		for row in json_ret:
 			if (type(row) == dict):
-				lst_hastag = find_hast(row.get("full_text"))
+				lst_hastag =find_hast(row.get("full_text"))
 				lst_usr = find_usr(row.get("full_text"))
 				if lst_hastag != None:
 					for value in lst_hastag:
+						print ("		hastag = " + value)
 						ret['hastag'].append(value)
 				if lst_usr != None:
 					lst_usr.append(row.get("user").get("screen_name"))
 					for value in lst_usr:
-						ret['user'].append(value)
+							if not check_usr_cerf(value):
+								print ("		user = " + value)
+								ret['user'].append(value)
 		return ret
-	else:
-		print ("find_hast_error")
 
-def module_de_recherche_by_user(start):
-	tmp = find_by_usr(start.name)
-	if (tmp == None):
-		print("Rien Trouvé")
+def module_de_recherche_by_user(start, i):
+	if i <= 0:
 		return
-	#tmp = filtre_lst(tmp)
-	start.do_node_user_user(start.name, tmp.get("user"))
-	start.do_node_user_hast(start.name, tmp.get("hastag"))
-	print ("first step")
-	for value in start.node_user_user.ret:
+	print ("user i = " + str(i))
+	for value in list(set(start.ret)):
 		tmp = find_by_usr(value)
-		if (tmp != None):
-			#tmp = filtre_user(tmp)
+		if (tmp == None):
+			print("Rien Trouvé pour l'user " + value)
+		else :
 			start.do_node_user_user(value, tmp.get("user"))
 			start.do_node_user_hast(value, tmp.get("hastag"))
-	print ("second step")
-	for value in start.node_user_hast.ret:
+			node = start.node_user_user
+			while (node):
+				module_de_recherche_by_user(node, i - 1)
+				node = node.next
+			node = start.node_user_hast
+			while (node):
+				module_de_recherche_by_hastag(node, i - 1)
+				node = node.next
+			node = start.node_hast_user
+			while (node):
+				module_de_recherche_by_user(node, i - 1)
+				node = node.next
+			node = start.node_hast_hast
+			while (node):
+				module_de_recherche_by_hastag(node, i - 1)
+				node = node.next
+
+def module_de_recherche_by_hastag(start, i):
+	if i == 0:
+		return
+	print ("hastag i = " + str(i))
+	for value in list(set(start.ret)):
 		tmp = find_by_hast(value)
-		if (tmp != None):
-			#tmp = filtre_hastag(tmp)
+		if (tmp == None):
+			print("Rien Trouvé pour l'hastag " + value)
+		else :
 			start.do_node_hast_user(value, tmp.get("user"))
 			start.do_node_hast_hast(value, tmp.get("hastag"))
+			node = start.node_user_user
+			while (node):
+				module_de_recherche_by_user(node, i - 1)
+				node = node.next
+			node = start.node_user_hast
+			while (node):
+				module_de_recherche_by_hastag(node, i - 1)
+				node = node.next
+			node = start.node_hast_user
+			while (node):
+				module_de_recherche_by_user(node, i - 1)
+				node = node.next
+			node = start.node_hast_hast
+			while (node):
+				module_de_recherche_by_hastag(node, i - 1)
+				node = node.next
 
-
+def startttt(start):
+	for value in start.ret:
+		tmp = find_by_usr(value)
+		print (tmp)
+		if (tmp == None):
+			print("Rien Trouvé pour l'user " + value)
+		else :
+			start.do_node_user_user(value, tmp.get("user"))
+			start.do_node_user_hast(value, tmp.get("hastag"))
+			node = start.node_user_user
+			while (node):
+				print ("okiii")
+				module_de_recherche_by_user(node, 2)
+				node = node.next
+			node = start.node_user_hast
+			while (node):
+				print ("salope")
+				module_de_recherche_by_hastag(node, 2)
+				node = node.next
+			node = start.node_hast_user
+			while (node):
+				print ("ptnnnnnn")
+				module_de_recherche_by_user(node, 2)
+				node = node.next
+			node = start.node_hast_hast
+			while (node):
+				print ("ptnnnn")
+				module_de_recherche_by_hastag(node, 2)
+				node = node.next
 
 def main():
-	start = Tlist(sys.argv[1], None, 0)
-	module_de_recherche_by_user(start)
-	save_json("json_" + sys.argv[1] + "13_50_12_01_19.json", start.get_json())
+	lst = [sys.argv[1]]
+	start = Tlist("algo", lst , 0)
+	startttt(start)
+	save_json("json_" + sys.argv[1] + ".json", start.get_json())
 	# save("csv_" + sys.argv[1] + ".csv", lst_to_csv(start))
 
 main()

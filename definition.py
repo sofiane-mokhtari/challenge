@@ -1,8 +1,9 @@
 import requests
-import re, sys, json
+import re, sys, json, time
 from requests_oauthlib import OAuth1
-from variable import *
 
+from variable import *
+global_variable = Variable()
 class Tlist():
 
 	def __init__(self, name, lst, t):
@@ -23,17 +24,18 @@ class Tlist():
 		while (tmp):
 			tmp2 = {}
 			tmp2["name"] = tmp.name
-			tmp2["type"] = tmp.type
-			tmp2["list_return"] = tmp.ret
-			tmp2["nombre_user"] = tmp.len_ret
-			if (tmp.node_user_user != None):
-				tmp2["node_user_user"] = tmp.node_user_user.get_json()
-			if (tmp.node_user_hast != None):
-				tmp2["node_user_hast"] = tmp.node_user_hast.get_json()
-			if (tmp.node_hast_user != None):
-				tmp2["node_hast_user"] = tmp.node_hast_user.get_json()
-			if (tmp.node_hast_hast != None):
-				tmp2["node_hast_hast"] = tmp.node_hast_hast.get_json()
+			if (tmp.ret != None):
+				tmp2["type_@1_#2"] = tmp.type
+				tmp2["liste_return"] = tmp.ret
+				tmp2["nombre_delement"] = tmp.len_ret
+				if (tmp.node_user_user != None):
+					tmp2["BRANCHE_user_user"] = tmp.node_user_user.get_json()
+				if (tmp.node_user_hast != None):
+					tmp2["BRANCHE_user_hast"] = tmp.node_user_hast.get_json()
+				if (tmp.node_hast_user != None):
+					tmp2["BRANCHE_hast_user"] = tmp.node_hast_user.get_json()
+				if (tmp.node_hast_hast != None):
+					tmp2["BRANCHE_hast_hast"] = tmp.node_hast_hast.get_json()
 			ret.append(tmp2)
 			tmp = tmp.next
 		return ret
@@ -159,10 +161,21 @@ def get_tweets_by_hastag_if_count(hastag):
 	try:
 		url = "https://api.twitter.com/1.1/search/tweets.json?q="
 		requette = rqtt(url, "%23" + hastag)
-		json_ret = requette.json().get("search_metadata")
-		return (json_ret.get("count"))
+		json_ret = requette.json()
+		if (json_ret == None):
+			print(requette)
+			return None
+			print (json_ret.get("search_metadata"))
+		if (json_ret.get("search_metadata").get("count") < global_variable.nb_max_hastag):
+			return json_ret.get('statuses')
+		return None
 	except Exception as e:
-		print (e)
+		print ("get_tweets_by_hastag_if_count,hastag = " + hastag + "RQT CODE" + str(requette) + " ERROR = " + str(e))
+		if (requette.json().get("errors")[0].get("code") == 88):
+			print ("waiiiiiiit")
+			time.sleep(20)
+			return get_tweets_by_hastag_if_count(hastag)
+	return None
 
 def get_usr_info(usr):
 	tweets = get_tweets_by_usr(usr)
@@ -177,11 +190,16 @@ def get_tweets_by_usr(usr):
 	try:
 		url = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="
 		requette = rqtt(url, "%40" + usr + "&tweet_mode=extended")
+		print (requette)
 		json_ret = requette.json()
 		return (json_ret)
 	except Exception as e:
 		print ("get_tweets_by_usr")
 		print (e)
+		if (requette.json().get("errors")[0].get("code") == 88):
+			print ("waiiiiiiit")
+			time.sleep(5)
+			return get_tweets_by_usr(usr)
 
 def get_follow_by_usr(usr):
 	try:
@@ -231,7 +249,8 @@ def check_usr_cerf(usr):
 		stt = r.json().get("verified")
 		return (stt)
 	except Exception as e:
-		pass
+		print (e)
+		print ("check usr cert")
 	return (False)
 
 def put_without_double(lst_dst, lst_src):
@@ -241,13 +260,18 @@ def put_without_double(lst_dst, lst_src):
 			lst_double.append(i)
 	return (lst_double)
 
+def filter(ret):
+	tmp = {"user" : [], "hastag" : []}
+	tmp['user'] = filtre_user(ret.get('user'))
+	tmp['hastag'] = filtre_hastag(ret.get('hastag'))
+	return tmp
+
 def filtre_hastag(lst_hastag):
 	tmp = []
 	for value in lst_hastag:
 		if get_tweets_by_hastag_if_count(value) < global_variable.nb_max_hastag:
 			tmp.append(value)
 	return tmp
-
 
 def filtre_user(lst_user):
 	tmp = []
