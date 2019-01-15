@@ -208,7 +208,7 @@ def get_usr_info(usr):
 def get_tweets_by_usr(usr):
 	try:
 		url = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="
-		requette = rqtt(url, "%40" + usr + "&tweet_mode=extended")
+		requette = rqtt(url, "%40" + usr + "&tweet_mode=extended&exclude_replies=false")
 		print (requette)
 		json_ret = requette.json()
 		return (json_ret)
@@ -317,4 +317,4 @@ def find_by_usr_special(usr):
 							if not check_usr_cerf(value):
 								print ("		user = " + value)
 								ret['user'].append(value)
-		return re
+		return ret

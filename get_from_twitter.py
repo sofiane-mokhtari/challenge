@@ -20,9 +20,10 @@ def find_by_usr(usr):
 						ret['hastag'].append(value)
 				if lst_usr != None:
 					for value in lst_usr:
-							if not check_usr_cerf(value):
-								print ("		user = " + value)
-								ret['user'].append(value)
+						if not check_usr_cerf(value):
+							print ("		user = " + value)
+							ret['user'].append(value)
+		print (ret)
 		return ret
 
 def find_by_hast(hastag):
@@ -40,9 +41,9 @@ def find_by_hast(hastag):
 				if lst_usr != None:
 					lst_usr.append(row.get("user").get("screen_name"))
 					for value in lst_usr:
-							if not check_usr_cerf(value):
-								print ("		user = " + value)
-								ret['user'].append(value)
+						if not check_usr_cerf(value):
+							print ("		user = " + value)
+							ret['user'].append(value)
 		return ret
 
 def module_de_recherche_by_user(start, i):
@@ -86,6 +87,7 @@ def module_de_recherche_by_hastag(start, i):
 			start.do_node_hast_hast(value, tmp.get("hastag"))
 			node = start.node_user_user
 			while (node):
+				print (node.name)
 				module_de_recherche_by_user(node, i - 1)
 				node = node.next
 			node = start.node_user_hast
@@ -156,11 +158,14 @@ def relation_entre_tweet(inpuut, i):
 	return (start)
 
 def main():
-	start = relation_entre_tweet(sys.argv[1], sys.argv[2])
+	start = relation_entre_tweet(sys.argv[1], int(sys.argv[2]))
 	# start.get_csv_by_relation("csv2_" + lst[0])
-	print ("FILE NAME")
-	print ("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_") + ".json")
-	save_json("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_") + ".json", start.get_json())
+	# print ("FILE NAME")
+	# print ("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_").replace("/", "_") + ".json")
+	print (start.node_user_user.node_user_user.node_user_user.ret )
+	print (start.node_user_user.node_user_user.node_user_user.next.ret )
+	print (start.node_user_user.node_user_user.node_user_user.next.next)
+	save_json("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_").replace("/", "_") + ".json", start.get_json())
 	# save("csv_" + sys.argv[1] + ".csv", lst_to_csv(start))
 
 main()
