@@ -1,5 +1,5 @@
 import requests
-import re, sys, json, time
+import re, sys, json, time, csv
 from requests_oauthlib import OAuth1
 
 from variable import *
@@ -39,6 +39,26 @@ class Tlist():
 			ret.append(tmp2)
 			tmp = tmp.next
 		return ret
+
+	def get_csv_by_relation(self, path):
+		file = open(path, "w")
+		c = csv.writer(file)
+		c.writerow([self.ret[0], "si direct", "nb lien", "nb"])
+		tmp = self.node_user_user
+		while (tmp):
+			c = tmp.get_row_relation(c)
+			tmp = tmp.next
+		file.close()
+
+	def get_row_relation(self, c):
+		for value in self.ret:
+			c.writerow([value, 1, self.ret.count(value)])
+		tmp = self.node_user_user
+		while (tmp):
+			for value in tmp.ret:
+				c.writerow([value, 0, tmp.ret.count(value)])
+			tmp = tmp.next
+		return (c)
 
 	def add_next(self, value):
 		tmp = self.get_end()
@@ -151,7 +171,7 @@ def get_tweets_by_hastag(hastag):
 	try:
 		url = "https://api.twitter.com/1.1/search/tweets.json?q="
 		requette = rqtt(url, "%23" + hastag  + "&tweet_mode=extended")
-		json_ret = requette.json().get("statuses")
+		json_ret = requette.json().get('statuses')
 		return (json_ret)
 	except Exception as e:
 		print ("get_tweets_by_hast")
@@ -165,7 +185,6 @@ def get_tweets_by_hastag_if_count(hastag):
 		if (json_ret == None):
 			print(requette)
 			return None
-			print (json_ret.get("search_metadata"))
 		if (json_ret.get("search_metadata").get("count") < global_variable.nb_max_hastag):
 			return json_ret.get('statuses')
 		return None
@@ -175,7 +194,7 @@ def get_tweets_by_hastag_if_count(hastag):
 			print ("waiiiiiiit")
 			time.sleep(20)
 			return get_tweets_by_hastag_if_count(hastag)
-	return None
+	return None 
 
 def get_usr_info(usr):
 	tweets = get_tweets_by_usr(usr)
@@ -280,3 +299,22 @@ def filtre_user(lst_user):
 			tmp.append(value)
 	return tmp
 
+def find_by_usr_special(usr):
+	ret = {"user" : [], "hastag" : []}
+	json_ret = get_tweets_by_usr(usr)
+	if json_ret != None:
+		json_ret = json_ret
+		for row in json_ret:
+			if (type(row) == dict):
+				lst_hastag = find_hast(row.get("full_text"))
+				lst_usr = find_usr(row.get("full_text"))
+				if lst_hastag != None:
+					for value in lst_hastag:
+						print ("		hastag = " + value)
+						ret['hastag'].append(value)
+				if lst_usr != None:
+					for value in lst_usr:
+							if not check_usr_cerf(value):
+								print ("		user = " + value)
+								ret['user'].append(value)
+		return re
