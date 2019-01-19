@@ -2,7 +2,7 @@ from flask import Flask, Response, make_response, render_template
 app = Flask(__name__)
 
 def rqtt(url, plus):
-	auth = OAuth1("PvzeEvDvTXhyRtPxFXFCSOx4U","nix6GtK0Q4HS67BKZHu0VyytMJY6Ecue84t8gEMIqGGotgoVZt","1081910144391368704-LpBgTAo33rIpBT94e0SEr62NLkhGBU","AaRIIJ2KcvhB2j23SP3UybabQ8ZzL4pAAUJAaTIkbwP6z")
+	auth = OAuth1()
 	try:
 		r = requests.get(url + plus, auth=auth)
 	except Exception as e:
