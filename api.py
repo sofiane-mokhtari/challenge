@@ -1,4 +1,4 @@
-from flask import Flask, Response, make_response
+from flask import Flask, Response, make_response, render_template
 app = Flask(__name__)
 
 def rqtt(url, plus):
@@ -35,6 +35,37 @@ def get_tweets_by_hastag(hastag, nb):
 			time.sleep(5)
 			return get_tweets_by_hastag(hastag)
 		return None
+
+def find_hast(tweet):
+	if tweet == None:
+		return None
+	try:
+		ret = re.findall("#([A-Za-z0-9_]+)", tweet)
+		# ret = supprimer_dooublon(ret)
+	except Exception as e:
+		print ("find hast")
+		print (e)
+		print (tweet)
+	return (ret)
+
+def find_usr(tweet):
+	if tweet == None:
+		return None
+	try:
+		ret = re.findall("@([A-Za-z0-9_]+)", tweet)
+		#ret = supprimer_dooublon(ret)
+	except Exception as e:
+		print ("find user")
+		print (e)
+		print (tweet)
+	return (ret)
+
+def get_user(value, typee, nb):
+	if (typee):
+		tweets = get_tweets_by_hastag(value, nb)
+	else:
+		tweets = get_tweets_by_user(value, nb)
+
 
 @app.route("/")
 def get_home():
@@ -77,3 +108,13 @@ def relation(value, typee):
 def graph_value(value, typee, config):
 	ret = {}
 	json_ret = get_tweets_by_hastag()
+
+@app.route("/carto/<value>/<typee>/<nb>")
+def carto(value, typee, nb):
+	ret = {[]}
+	if (typee):
+		user = get_
+
+print (__name__)
+if __name__ == '__main__':
+	app.run(debug=True)

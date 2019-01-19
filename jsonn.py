@@ -31,8 +31,9 @@ def main():
 					tout_2 += tmp_2
 	tout = start.get("liste_return")
 	total = list(set(tout + tout_1 + tout_2))
+	print (plus_plus)
 	print (plus_plus_plus)
-	for value in total:			
+	for value in total:		
 		ret[value] = [value, 0, 0, 0, 0, 0]
 		if value in plus_plus:
 			ret.get(value)[2] += 1

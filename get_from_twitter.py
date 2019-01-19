@@ -5,7 +5,7 @@ global_variable = Variable()
 
 def find_by_usr(usr):
 	if (usr == sys.argv[1]):
-		return 
+		return
 	ret = {"user" : [], "hastag" : []}
 	json_ret = get_tweets_by_usr(usr)
 	if json_ret != None:
@@ -28,7 +28,7 @@ def find_by_usr(usr):
 
 def find_by_hast(hastag):
 	ret = {"user" : [], "hastag" : []}
-	json_ret = get_tweets_by_hastag_if_count(hastag)
+	json_ret = get_tweets_by_hastag(hastag)
 	if json_ret != None:
 		for row in json_ret:
 			if (type(row) == dict):
@@ -39,7 +39,8 @@ def find_by_hast(hastag):
 						print ("		hastag = " + value)
 						ret['hastag'].append(value)
 				if lst_usr != None:
-					lst_usr.append(row.get("user").get("screen_name"))
+					if not check_usr_cerf(row.get("user").get("screen_name")):
+						lst_usr.append(row.get("user").get("screen_name"))
 					for value in lst_usr:
 						if not check_usr_cerf(value):
 							print ("		user = " + value)
@@ -132,6 +133,7 @@ def relation_entre_tweet(inpuut, i):
 					node = node.next
 	else:
 		for value in start.ret:
+			print ("value")
 			tmp = find_by_hast(value)
 			print (tmp)
 			if (tmp == None):
@@ -145,7 +147,7 @@ def relation_entre_tweet(inpuut, i):
 					node = node.next
 				node = start.node_user_hast
 				while (node):
-					module_de_recherche_by_hastag(node, 2)
+					module_de_recherche_by_hastag(node,2)
 					node = node.next
 				node = start.node_hast_user
 				while (node):
@@ -158,13 +160,15 @@ def relation_entre_tweet(inpuut, i):
 	return (start)
 
 def main():
+	# a = find_by_hast("Azawad").get("hastag")
+	# print (len(a))
 	start = relation_entre_tweet(sys.argv[1], int(sys.argv[2]))
 	# start.get_csv_by_relation("csv2_" + lst[0])
 	# print ("FILE NAME")
 	# print ("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_").replace("/", "_") + ".json")
-	print (start.node_user_user.node_user_user.node_user_user.ret )
-	print (start.node_user_user.node_user_user.node_user_user.next.ret )
-	print (start.node_user_user.node_user_user.node_user_user.next.next)
+	# print (start.node_user_user.node_user_user.node_user_user.ret )
+	# print (start.node_user_user.node_user_user.node_user_user.next.ret )
+	# print (start.node_user_user.node_user_user.node_user_user.next.next)
 	save_json("json_new" + sys.argv[1] + "_" + time.strftime('%X_%x').replace(":", "_").replace("/", "_") + ".json", start.get_json())
 	# save("csv_" + sys.argv[1] + ".csv", lst_to_csv(start))
 

@@ -170,7 +170,7 @@ def rqtt(url, plus):
 def get_tweets_by_hastag(hastag):
 	try:
 		url = "https://api.twitter.com/1.1/search/tweets.json?q="
-		requette = rqtt(url, "%23" + hastag  + "&tweet_mode=extended")
+		requette = rqtt(url, "%23" + hastag  + "&tweet_mode=extended&count=10")
 		json_ret = requette.json().get('statuses')
 		return (json_ret)
 	except Exception as e:
@@ -208,7 +208,7 @@ def get_usr_info(usr):
 def get_tweets_by_usr(usr):
 	try:
 		url = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="
-		requette = rqtt(url, "%40" + usr + "&tweet_mode=extended&exclude_replies=false")
+		requette = rqtt(url, "%40" + usr + "&tweet_mode=extended&exclude_replies=false&count=10")
 		print (requette)
 		json_ret = requette.json()
 		return (json_ret)
